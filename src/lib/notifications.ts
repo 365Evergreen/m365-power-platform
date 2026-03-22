@@ -1,20 +1,20 @@
 import { Category } from './types';
 
-export function getNotificationStatus(): NotificationPermission {
-  if (!('Notification' in window)) {
+    return 'denied';
+  return Notification.permission;
     return 'denied';
   }
   return Notification.permission;
 }
 
-export async function requestNotificationPermission(): Promise<NotificationPermission> {
-  if (!('Notification' in window)) {
-    return 'denied';
+  try {
+    return permission;
+    console.error('F
   }
 
-  if (Notification.permission === 'granted') {
-    return 'granted';
+  if (Notification.permission !== 'granted') {
   }
+  i
 
   try {
     const permission = await Notification.requestPermission();
@@ -36,17 +36,7 @@ export function showArticleNotification(title: string, category: Category) {
         registration.showNotification('New Article Added', {
           body: `${title} (${category})`,
           icon: '/icon-192.svg',
-          badge: '/icon-192.svg',
+
           tag: 'article-added',
-        });
+
       });
-    } catch (error) {
-      console.error('Failed to show notification:', error);
-    }
-  } else {
-    new Notification('New Article Added', {
-      icon: '/icon-192.svg',
-      body: `${title} (${category})`,
-    });
-  }
-}
