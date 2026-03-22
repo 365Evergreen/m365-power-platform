@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useKV } from "@github/spark/hooks";
 import { Article, Category } from "@/lib/types";
+import { sampleArticles } from "@/lib/seedData";
 import { ArticleCard } from "@/components/ArticleCard";
 import { ArticleDialog } from "@/components/ArticleDialog";
 import { ArticleDetailsDialog } from "@/components/ArticleDetailsDialog";
@@ -8,8 +9,9 @@ import { SearchBar } from "@/components/SearchBar";
 import { FilterBar } from "@/components/FilterBar";
 import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
-import { Plus } from "@phosphor-icons/react";
+import { Plus, Database } from "@phosphor-icons/react";
 import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
 function App() {
@@ -59,6 +61,27 @@ function App() {
     setArticles((current) => (current || []).filter((article) => article.id !== id));
   };
 
+  const handleLoadSampleArticles = () => {
+    const newArticles: Article[] = sampleArticles.map((article) => ({
+      ...article,
+      id: crypto.randomUUID(),
+      dateAdded: new Date().toISOString(),
+    }));
+    
+    setArticles((current) => {
+      const existingUrls = new Set((current || []).map(a => a.url));
+      const uniqueNewArticles = newArticles.filter(a => !existingUrls.has(a.url));
+      
+      if (uniqueNewArticles.length === 0) {
+        toast.info("All sample articles are already in your knowledge base");
+        return current || [];
+      }
+      
+      toast.success(`Added ${uniqueNewArticles.length} sample article${uniqueNewArticles.length === 1 ? '' : 's'}`);
+      return [...uniqueNewArticles, ...(current || [])];
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Toaster />
@@ -74,14 +97,25 @@ function App() {
                 Curated articles for Microsoft 365 and Power Platform
               </p>
             </div>
-            <Button
-              onClick={() => setIsAddDialogOpen(true)}
-              className="gap-2"
-              size="default"
-            >
-              <Plus size={16} weight="bold" />
-              Add Article
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleLoadSampleArticles}
+                variant="outline"
+                className="gap-2"
+                size="default"
+              >
+                <Database size={16} weight="bold" />
+                Load Samples
+              </Button>
+              <Button
+                onClick={() => setIsAddDialogOpen(true)}
+                className="gap-2"
+                size="default"
+              >
+                <Plus size={16} weight="bold" />
+                Add Article
+              </Button>
+            </div>
           </div>
 
           <SearchBar value={searchQuery} onChange={setSearchQuery} />
@@ -96,7 +130,10 @@ function App() {
 
       <div className="container mx-auto px-4 py-6 md:px-6 md:py-8">
         {(articles || []).length === 0 ? (
-          <EmptyState onAddClick={() => setIsAddDialogOpen(true)} />
+          <EmptyState 
+            onAddClick={() => setIsAddDialogOpen(true)} 
+            onLoadSamples={handleLoadSampleArticles}
+          />
         ) : filteredArticles.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-[15px] text-muted-foreground mb-2">
