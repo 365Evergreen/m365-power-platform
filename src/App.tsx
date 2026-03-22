@@ -8,6 +8,8 @@ import { ArticleDetailsDialog } from "@/components/ArticleDetailsDialog";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterBar } from "@/components/FilterBar";
 import { EmptyState } from "@/components/EmptyState";
+import { PWAUpdatePrompt } from "@/components/PWAUpdatePrompt";
+import { OfflineIndicator } from "@/components/OfflineIndicator";
 import { Button } from "@/components/ui/button";
 import { Plus, Database } from "@phosphor-icons/react";
 import { Toaster } from "@/components/ui/sonner";
@@ -85,6 +87,8 @@ function App() {
   return (
     <div className="min-h-screen bg-background">
       <Toaster />
+      <PWAUpdatePrompt />
+      <OfflineIndicator />
       
       <div className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-6 md:px-6 md:py-8">

@@ -47,6 +47,13 @@ A comprehensive knowledge base for curating and discovering M365 and Power Platf
 - **Progression**: Click edit → Pre-filled form opens → Update fields → Save → Article updates in view | Click delete → Confirmation dialog → Confirm → Article removed
 - **Success criteria**: Changes persist, UI updates immediately, deletion requires confirmation
 
+### Progressive Web App (PWA) Capabilities
+- **Functionality**: Install app on device, work offline, receive update notifications
+- **Purpose**: Enable offline access to knowledge base and native app-like experience
+- **Trigger**: Browser prompts for installation, automatic service worker registration
+- **Progression**: Install prompt appears → User clicks install → App added to home screen → Service worker caches assets → App works offline → Update notifications appear when new version available
+- **Success criteria**: App installs successfully, works offline, data persists, updates smoothly, offline indicator shows connection status
+
 ## Edge Case Handling
 
 - **Empty State** - Show welcoming illustration and "Add your first article" prompt when no articles exist
@@ -56,6 +63,8 @@ A comprehensive knowledge base for curating and discovering M365 and Power Platf
 - **Long Content** - Truncate descriptions in card view with "Read more" affordance
 - **Many Tags** - Limit visible tags in card view to 3-4 with "+N more" indicator
 - **Filter Combinations** - Handle search + category filters together with clear applied filters display
+- **Offline Mode** - Show clear offline indicator when connection is lost, allow access to cached content
+- **Update Available** - Prompt user with friendly notification when new app version is ready
 
 ## Design Direction
 
