@@ -161,12 +161,12 @@ export function ArticleDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[calc(100vw-2rem)] sm:w-full">
         <DialogHeader>
-          <DialogTitle className="text-[24px]">
+          <DialogTitle className="text-[20px] sm:text-[22px] md:text-[24px]">
             {editingArticle ? "Edit Article" : "Add New Article"}
           </DialogTitle>
-          <DialogDescription className="text-[15px]">
+          <DialogDescription className="text-[13px] sm:text-[14px] md:text-[15px]">
             {editingArticle
               ? "Update the article details below"
               : "Add a new article to your knowledge base"}
@@ -175,7 +175,7 @@ export function ArticleDialog({
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="url" className="text-[14px] font-semibold">
+            <Label htmlFor="url" className="text-[13px] sm:text-[14px] font-semibold">
               URL *
             </Label>
             <Input
@@ -189,12 +189,12 @@ export function ArticleDialog({
               className={errors.url ? "border-destructive" : ""}
             />
             {errors.url && (
-              <p className="text-[13px] text-destructive">{errors.url}</p>
+              <p className="text-[12px] sm:text-[13px] text-destructive">{errors.url}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="title" className="text-[14px] font-semibold">
+            <Label htmlFor="title" className="text-[13px] sm:text-[14px] font-semibold">
               Title *
             </Label>
             <Input
@@ -208,12 +208,12 @@ export function ArticleDialog({
               className={errors.title ? "border-destructive" : ""}
             />
             {errors.title && (
-              <p className="text-[13px] text-destructive">{errors.title}</p>
+              <p className="text-[12px] sm:text-[13px] text-destructive">{errors.title}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-[14px] font-semibold">
+            <Label htmlFor="description" className="text-[13px] sm:text-[14px] font-semibold">
               Description *
             </Label>
             <Textarea
@@ -227,14 +227,14 @@ export function ArticleDialog({
               className={`min-h-[100px] ${errors.description ? "border-destructive" : ""}`}
             />
             {errors.description && (
-              <p className="text-[13px] text-destructive">
+              <p className="text-[12px] sm:text-[13px] text-destructive">
                 {errors.description}
               </p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="category" className="text-[14px] font-semibold">
+            <Label htmlFor="category" className="text-[13px] sm:text-[14px] font-semibold">
               Category *
             </Label>
             <Select value={category} onValueChange={(value) => setCategory(value as Category)}>
@@ -252,7 +252,7 @@ export function ArticleDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="tags" className="text-[14px] font-semibold">
+            <Label htmlFor="tags" className="text-[13px] sm:text-[14px] font-semibold">
               Tags
             </Label>
             <div className="flex gap-2">
@@ -262,8 +262,9 @@ export function ArticleDialog({
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleKeyDown}
+                className="flex-1"
               />
-              <Button type="button" variant="secondary" onClick={handleAddTag}>
+              <Button type="button" variant="secondary" onClick={handleAddTag} className="shrink-0">
                 Add
               </Button>
             </div>
@@ -273,7 +274,7 @@ export function ArticleDialog({
                   <Badge
                     key={tag}
                     variant="secondary"
-                    className="text-[13px] gap-1 pr-1"
+                    className="text-[12px] sm:text-[13px] gap-1 pr-1"
                   >
                     {tag}
                     <button
@@ -290,11 +291,11 @@ export function ArticleDialog({
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>
+          <Button onClick={handleSubmit} className="w-full sm:w-auto">
             {editingArticle ? "Update Article" : "Add Article"}
           </Button>
         </DialogFooter>

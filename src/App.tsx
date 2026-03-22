@@ -88,32 +88,34 @@ function App() {
       
       <div className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-6 md:px-6 md:py-8">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-[32px] font-semibold tracking-[-0.02em] text-foreground mb-1">
+              <h1 className="text-[24px] sm:text-[28px] md:text-[32px] font-semibold tracking-[-0.02em] text-foreground mb-1">
                 M365 Knowledge Base
               </h1>
-              <p className="text-[15px] text-muted-foreground leading-relaxed">
+              <p className="text-[14px] sm:text-[15px] text-muted-foreground leading-relaxed">
                 Curated articles for Microsoft 365 and Power Platform
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap sm:flex-nowrap">
               <Button
                 onClick={handleLoadSampleArticles}
                 variant="outline"
-                className="gap-2"
+                className="gap-2 flex-1 sm:flex-initial"
                 size="default"
               >
                 <Database size={16} weight="bold" />
-                Load Samples
+                <span className="hidden xs:inline">Load Samples</span>
+                <span className="xs:hidden">Samples</span>
               </Button>
               <Button
                 onClick={() => setIsAddDialogOpen(true)}
-                className="gap-2"
+                className="gap-2 flex-1 sm:flex-initial"
                 size="default"
               >
                 <Plus size={16} weight="bold" />
-                Add Article
+                <span className="hidden xs:inline">Add Article</span>
+                <span className="xs:hidden">Add</span>
               </Button>
             </div>
           </div>

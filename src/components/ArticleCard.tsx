@@ -24,19 +24,19 @@ export function ArticleCard({
 
   return (
     <Card
-      className="p-5 hover:shadow-lg hover:border-accent/50 transition-all duration-200 cursor-pointer group"
+      className="p-4 sm:p-5 hover:shadow-lg hover:border-accent/50 transition-all duration-200 cursor-pointer group"
       onClick={onView}
     >
       <div className="flex flex-col h-full">
         <div className="flex items-start justify-between mb-3">
-          <Badge variant="secondary" className="text-[13px] font-medium">
+          <Badge variant="secondary" className="text-[11px] sm:text-[12px] md:text-[13px] font-medium">
             {article.category}
           </Badge>
-          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-7 w-7 sm:h-8 sm:w-8"
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit();
@@ -47,7 +47,7 @@ export function ArticleCard({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-destructive hover:text-destructive"
+              className="h-7 w-7 sm:h-8 sm:w-8 text-destructive hover:text-destructive"
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete();
@@ -58,11 +58,11 @@ export function ArticleCard({
           </div>
         </div>
 
-        <h3 className="text-[18px] font-medium leading-[1.4] mb-2 group-hover:text-accent transition-colors">
+        <h3 className="text-[16px] sm:text-[17px] md:text-[18px] font-medium leading-[1.4] mb-2 group-hover:text-accent transition-colors">
           {article.title}
         </h3>
 
-        <p className="text-[15px] text-muted-foreground leading-relaxed mb-4 line-clamp-3 flex-1">
+        <p className="text-[13px] sm:text-[14px] md:text-[15px] text-muted-foreground leading-relaxed mb-4 line-clamp-3 flex-1">
           {article.description}
         </p>
 
@@ -73,20 +73,20 @@ export function ArticleCard({
                 <Badge
                   key={tag}
                   variant="outline"
-                  className="text-[12px] bg-secondary/50"
+                  className="text-[11px] sm:text-[12px] bg-secondary/50"
                 >
                   {tag}
                 </Badge>
               ))}
               {remainingTagsCount > 0 && (
-                <Badge variant="outline" className="text-[12px] bg-secondary/50">
+                <Badge variant="outline" className="text-[11px] sm:text-[12px] bg-secondary/50">
                   +{remainingTagsCount} more
                 </Badge>
               )}
             </div>
           )}
 
-          <div className="flex items-center justify-between text-[13px] text-muted-foreground">
+          <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-2 text-[12px] sm:text-[13px] text-muted-foreground">
             <span>{format(new Date(article.dateAdded), "MMM d, yyyy")}</span>
             <a
               href={article.url}

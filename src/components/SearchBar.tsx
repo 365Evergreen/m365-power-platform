@@ -11,15 +11,15 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
   return (
     <div className="relative mb-4">
       <MagnifyingGlass
-        className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-        size={20}
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+        size={18}
       />
       <Input
         type="text"
         placeholder="Search articles by title, description, or tags..."
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="pl-10 pr-10 h-11 text-[15px]"
+        className="pl-10 pr-10 h-11 text-[14px] sm:text-[15px]"
       />
       {value && (
         <Button
