@@ -43,6 +43,7 @@ export function ArticleDetailsDialog({
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
 
   if (!article) return null;
+  const isInternalPage = article.sourceType === "internal";
 
   const handleDelete = () => {
     onDelete();
@@ -115,29 +116,40 @@ export function ArticleDetailsDialog({
               </div>
             )}
 
-            <div>
-              <h3 className="text-[13px] sm:text-[14px] font-semibold mb-2">Source URL</h3>
-              <a
-                href={article.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[13px] sm:text-[14px] md:text-[15px] text-accent hover:underline break-all inline-flex items-center gap-1"
-              >
-                {article.url}
-                <ArrowSquareOut size={14} weight="bold" className="flex-shrink-0" />
-              </a>
-            </div>
+            {isInternalPage ? (
+              <div>
+                <h3 className="text-[13px] sm:text-[14px] font-semibold mb-2">Article Page</h3>
+                <div className="text-[13px] sm:text-[14px] md:text-[15px] text-muted-foreground leading-relaxed whitespace-pre-wrap rounded-lg border border-border/70 bg-muted/20 p-4">
+                  {article.content?.trim() || "This page does not have content yet."}
+                </div>
+              </div>
+            ) : (
+              <div>
+                <h3 className="text-[13px] sm:text-[14px] font-semibold mb-2">Source URL</h3>
+                <a
+                  href={article.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[13px] sm:text-[14px] md:text-[15px] text-accent hover:underline break-all inline-flex items-center gap-1"
+                >
+                  {article.url}
+                  <ArrowSquareOut size={14} weight="bold" className="flex-shrink-0" />
+                </a>
+              </div>
+            )}
           </div>
 
-          <DialogFooter className="mt-6">
-            <Button
-              onClick={() => window.open(article.url, "_blank")}
-              className="gap-2 w-full sm:w-auto"
-            >
-              Visit Source
-              <ArrowSquareOut size={16} weight="bold" />
-            </Button>
-          </DialogFooter>
+          {!isInternalPage && (
+            <DialogFooter className="mt-6">
+              <Button
+                onClick={() => window.open(article.url, "_blank")}
+                className="gap-2 w-full sm:w-auto"
+              >
+                Visit Source
+                <ArrowSquareOut size={16} weight="bold" />
+              </Button>
+            </DialogFooter>
+          )}
         </DialogContent>
       </Dialog>
 

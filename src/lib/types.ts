@@ -11,9 +11,13 @@ export type Category =
   | "Security & Compliance"
   | "Other";
 
+export type ArticleSourceType = "external" | "internal";
+
 export interface Article {
   id: string;
   url: string;
+  sourceType?: ArticleSourceType;
+  content?: string;
   title: string;
   description: string;
   category: Category;

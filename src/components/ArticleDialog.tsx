@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Article, Category } from "@/lib/types";
+import { Article, ArticleSourceType, Category } from "@/lib/types";
 import {
   Dialog,
   DialogContent,
@@ -52,6 +52,8 @@ export function ArticleDialog({
   existingUrls = [],
 }: ArticleDialogProps) {
   const [url, setUrl] = useState("");
+  const [sourceType, setSourceType] = useState<ArticleSourceType>("external");
+  const [content, setContent] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<Category>("Microsoft 365");
@@ -62,6 +64,8 @@ export function ArticleDialog({
   useEffect(() => {
     if (editingArticle) {
       setUrl(editingArticle.url || "");
+      setSourceType(editingArticle.sourceType || "external");
+      setContent(editingArticle.content || "");
       setTitle(editingArticle.title || "");
       setDescription(editingArticle.description || "");
       setCategory(editingArticle.category || ("Microsoft 365" as Category));
@@ -69,6 +73,8 @@ export function ArticleDialog({
       setErrors({});
     } else {
       setUrl("");
+      setSourceType("external");
+      setContent("");
       setTitle("");
       setDescription("");
       setCategory("Microsoft 365");
@@ -80,10 +86,15 @@ export function ArticleDialog({
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!url.trim()) e.url = "URL is required";
+    if (sourceType === "external" && !url.trim()) e.url = "URL is required";
+    if (sourceType === "internal" && !content.trim()) e.content = "Page content is required";
     if (!title.trim()) e.title = "Title is required";
     if (!description.trim()) e.description = "Description is required";
-    if (existingUrls.includes(url.trim()) && (!editingArticle || editingArticle.url !== url.trim())) {
+    if (
+      sourceType === "external" &&
+      existingUrls.includes(url.trim()) &&
+      (!editingArticle || editingArticle.url !== url.trim())
+    ) {
       e.url = "This URL already exists";
     }
     setErrors(e);
@@ -94,7 +105,9 @@ export function ArticleDialog({
     if (!validate()) return;
     const article: Article = {
       id: editingArticle?.id || Date.now().toString(),
-      url: url.trim(),
+      url: sourceType === "external" ? url.trim() : "",
+      sourceType,
+      content: sourceType === "internal" ? content.trim() : "",
       title: title.trim(),
       description: description.trim(),
       category,
@@ -145,8 +158,27 @@ export function ArticleDialog({
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="url">Source URL *</Label>
-            <Input id="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
+            <Label htmlFor="sourceType">Page Type</Label>
+            <Select value={sourceType} onValueChange={(val) => setSourceType(val as ArticleSourceType)}>
+              <SelectTrigger className="w-full" id="sourceType">
+                <SelectValue placeholder="Select page type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="external">External source link</SelectItem>
+                <SelectItem value="internal">Custom article page</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="url">Source URL {sourceType === "external" ? "*" : "(optional)"}</Label>
+            <Input
+              id="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://example.com"
+              disabled={sourceType === "internal"}
+            />
             {errors.url && <p className="text-destructive text-sm mt-1">{errors.url}</p>}
           </div>
 
@@ -161,6 +193,20 @@ export function ArticleDialog({
             <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Short description" />
             {errors.description && <p className="text-destructive text-sm mt-1">{errors.description}</p>}
           </div>
+
+          {sourceType === "internal" && (
+            <div>
+              <Label htmlFor="content">Article Page Content *</Label>
+              <Textarea
+                id="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Write your article content here"
+                className="min-h-44"
+              />
+              {errors.content && <p className="text-destructive text-sm mt-1">{errors.content}</p>}
+            </div>
+          )}
 
           <div>
             <Label htmlFor="category">Category</Label>

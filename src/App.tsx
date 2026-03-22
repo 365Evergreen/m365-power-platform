@@ -73,12 +73,14 @@ function App() {
   const handleLoadSampleArticles = () => {
     const newArticles: Article[] = sampleArticles.map((article) => ({
       ...article,
+      sourceType: "external",
+      content: "",
       id: crypto.randomUUID(),
       dateAdded: new Date().toISOString(),
     }));
     
     setArticles((current) => {
-      const existingUrls = new Set((current || []).map(a => a.url));
+      const existingUrls = new Set((current || []).map((a) => a.url).filter(Boolean));
       const uniqueNewArticles = newArticles.filter(a => !existingUrls.has(a.url));
       
       if (uniqueNewArticles.length === 0) {
@@ -102,7 +104,7 @@ function App() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
               <img
-                src="/assets/Evergreen_Logo__100px.png"
+                src="https://raw.githubusercontent.com/365Evergreen/m365-power-platform/main/public/assets/Evergreen_Logo__100px.png"
                 alt="365 Evergreen logo"
                 className="mb-2 h-8 w-auto sm:h-9 md:h-10"
               />
@@ -194,7 +196,7 @@ function App() {
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
         onSubmit={handleAddArticle}
-        existingUrls={(articles || []).map((a) => a.url)}
+        existingUrls={(articles || []).map((a) => a.url).filter(Boolean)}
       />
 
       <ArticleDialog
@@ -204,7 +206,8 @@ function App() {
         editingArticle={editingArticle || undefined}
         existingUrls={(articles || [])
           .filter((a) => a.id !== editingArticle?.id)
-          .map((a) => a.url)}
+          .map((a) => a.url)
+          .filter(Boolean)}
       />
 
       <ArticleDetailsDialog
