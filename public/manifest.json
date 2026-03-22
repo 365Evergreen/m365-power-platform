@@ -1,23 +1,23 @@
 {
-  "name": "M365 Knowledge Base",
   "short_name": "M365 KB",
-  "description": "Curated articles for Microsoft 365 and Power Platform",
   "start_url": "/",
-  "display": "standalone",
   "background_color": "#fcfcfe",
-  "theme_color": "#4366d9",
-  "orientation": "portrait-primary",
-  "icons": [
+  "orientation": "p
     {
-      "src": "/icon-192.svg",
       "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    },
+      "purpose": "any maska
     {
-      "src": "/icon-512.svg",
+      "sizes
+    {
+  ],
+  "screenshots": []
+
+
+
+
+      "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ],
