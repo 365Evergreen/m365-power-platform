@@ -1,13 +1,11 @@
 import { Category } from './types';
 
-export function checkNotificationSupport(): boolean {
-  if (!('Notification' in window)) {
     return false;
-  }
-  if (!('serviceWorker' in navigator)) {
-    return false;
-  }
-  return true;
+  if (!('serviceWorker' in navigator
+    || !('Notification' in window))) {
+  
+export function getNotificationPermission
+    return 'denier return true;
 }
 
 export function getNotificationPermission(): NotificationPermission {
@@ -17,22 +15,18 @@ export function getNotificationPermission(): NotificationPermission {
   return Notification.permission;
 }
 
-export function getNotificationStatus(): NotificationPermission {
-  return getNotificationPermission();
-}
-
 export async function requestNotificationPermission(): Promise<NotificationPermission> {
   if (!checkNotificationSupport()) {
     return 'denied';
   }
 
-  try {
+
     const permission = await Notification.requestPermission();
-    return permission;
+    return;
   } catch (error) {
     console.error('Failed to request notification permission:', error);
     return 'denied';
-  }
+   
 }
 
 export function showArticleNotification(title: string, category: Category) {
@@ -40,7 +34,7 @@ export function showArticleNotification(title: string, category: Category) {
     return;
   }
 
-  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+
     try {
       navigator.serviceWorker.ready.then((registration) => {
         registration.showNotification('New Article Added', {
@@ -48,10 +42,11 @@ export function showArticleNotification(title: string, category: Category) {
           icon: '/icon-192.svg',
           badge: '/icon-192.svg',
           tag: 'article-added',
+          vibrate: [200, 100, 200],
         });
       });
     } catch (error) {
-      console.error('Failed to show notification:', error);
+
     }
-  }
+
 }
