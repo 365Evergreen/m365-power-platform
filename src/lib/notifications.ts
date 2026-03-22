@@ -1,51 +1,53 @@
 import { Category } from './types';
 
-function checkNotificationSupport(): boolean {
-  if (!('serviceWorker' in navigator) || !('Notification' in window)) {
+export function isNotificationSupported(): boolean {
+  if (!('Notification' in window)) {
+    return false;
+  }
+  if (!('serviceWorker' in navigator)) {
     return false;
   }
   return true;
 }
 
-export function getNotificationPermission(): NotificationPermission {
-  if (!checkNotificationSupport()) {
+export function getNotificationStatus(): NotificationPermission {
+  if (!isNotificationSupported()) {
     return 'denied';
   }
   return Notification.permission;
 }
 
-export function getNotificationStatus(): NotificationPermission {
-  return getNotificationPermission();
-}
-
 export async function requestNotificationPermission(): Promise<NotificationPermission> {
-  if (!checkNotificationSupport()) {
+  if (!isNotificationSupported()) {
     return 'denied';
   }
 
-  try {
-    const permission = await Notification.requestPermission();
-    return permission;
-  } catch (error) {
-    console.error('Failed to request notification permission:', error);
-    return 'denied';
-  }
+  const permission = await Notification.requestPermission();
+  return permission;
 }
 
-export function showArticleNotification(title: string, category: Category) {
-  if (Notification.permission !== 'granted') {
+export function showArticleNotification(title: string, category: Category): void {
+  if (!isNotificationSupported() || Notification.permission !== 'granted') {
     return;
   }
 
   try {
-    navigator.serviceWorker.ready.then((registration) => {
-      registration.showNotification('New Article Added', {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then((registration) => {
+        registration.showNotification('New Article Added', {
+          body: `${title} (${category})`,
+          icon: '/icon-192.svg',
+          badge: '/icon-192.svg',
+          tag: 'article-added',
+        });
+      });
+    } else {
+      new Notification('New Article Added', {
         body: `${title} (${category})`,
         icon: '/icon-192.svg',
         badge: '/icon-192.svg',
-        tag: 'article-added',
       });
-    });
+    }
   } catch (error) {
     console.error('Failed to show notification:', error);
   }
