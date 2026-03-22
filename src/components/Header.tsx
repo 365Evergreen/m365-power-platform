@@ -1,5 +1,4 @@
 import { NotificationSettings } from "@/components/NotificationSettings";
-import { SignInButton } from "@/components/SignInButton";
 import { Button } from "@/components/ui/button";
 import { Database, Plus } from "@phosphor-icons/react";
 
@@ -65,18 +64,7 @@ export function Header({
                 <span className="xs:hidden">Add</span>
               </Button>
             </>
-          ) : authLoading ? (
-            <p className="text-[13px] text-muted-foreground">Checking editor access...</p>
-          ) : (
-            <div className="flex flex-col items-start gap-2 sm:items-end">
-              <SignInButton />
-              <p className="text-[12px] text-muted-foreground text-left sm:text-right">
-                {isAuthenticated
-                  ? `Signed in as ${username || "GitHub user"}, but editing is restricted.`
-                  : "Sign in with GitHub to create and manage articles."}
-              </p>
-            </div>
-          )}
+          ) : null}
         </div>
       </div>
     </header>

@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Article as ArticleIcon, Plus, Database } from "@phosphor-icons/react";
-import { SignInButton } from "@/components/SignInButton";
 
 interface EmptyStateProps {
   canManageArticles: boolean;
@@ -41,18 +40,7 @@ export function EmptyState({
             Add Article
           </Button>
         </div>
-      ) : authLoading ? (
-        <p className="text-[13px] text-muted-foreground">Checking editor access...</p>
-      ) : (
-        <div className="flex flex-col items-center gap-3">
-          <SignInButton />
-          <p className="text-[13px] sm:text-[14px] text-muted-foreground text-center max-w-md leading-relaxed">
-            {isAuthenticated
-              ? `Signed in as ${username || "GitHub user"}, but only approved contributors can create or change articles.`
-              : "Sign in with GitHub to create articles if your account has been granted access."}
-          </p>
-        </div>
-      )}
+      ) : null}
     </div>
   );
 }
