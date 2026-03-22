@@ -1,22 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useKV } from "@github/spark/hooks";
 import { Article, Category } from "@/lib/types";
 import { sampleArticles } from "@/lib/seedData";
 import { ArticleCard } from "@/components/ArticleCard";
 import { ArticleDialog } from "@/components/ArticleDialog";
 import { ArticleDetailsDialog } from "@/components/ArticleDetailsDialog";
+import { Header } from "@/components/Header";
+import { HeroSection } from "@/components/HeroSection";
 import { SearchBar } from "@/components/SearchBar";
 import { FilterBar } from "@/components/FilterBar";
 import { EmptyState } from "@/components/EmptyState";
 import { PWAUpdatePrompt } from "@/components/PWAUpdatePrompt";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
-import { NotificationSettings } from "@/components/NotificationSettings";
-import { Button } from "@/components/ui/button";
-import { Plus, Database } from "@phosphor-icons/react";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { showArticleNotification } from "@/lib/notifications";
+import { getAuth } from "@/lib/auth";
+
+type AuthState = {
+  loading: boolean;
+  authenticated: boolean;
+  isContributor: boolean;
+  username?: string;
+};
 
 function App() {
   const [articles, setArticles] = useKV<Article[]>("articles", []);
@@ -26,6 +33,46 @@ function App() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const [viewingArticle, setViewingArticle] = useState<Article | null>(null);
+  const [authState, setAuthState] = useState<AuthState>({
+    loading: true,
+    authenticated: false,
+    isContributor: false,
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadAuthState() {
+      const auth = await getAuth();
+      if (!isMounted) return;
+
+      setAuthState({
+        loading: false,
+        authenticated: !!auth?.authenticated,
+        isContributor: !!auth?.user?.isContributor,
+        username: auth?.user?.username,
+      });
+    }
+
+    void loadAuthState();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const canManageArticles = authState.authenticated && authState.isContributor;
+  const articleCount = (articles || []).length;
+  const categoryCount = new Set((articles || []).map((article) => article.category)).size;
+
+  const showPermissionToast = () => {
+    if (!authState.authenticated) {
+      toast.error("Sign in with GitHub to create or edit articles");
+      return;
+    }
+
+    toast.error("Your GitHub account is not approved to manage articles");
+  };
 
   const filteredArticles = (articles || []).filter((article) => {
     const matchesSearch =
@@ -44,6 +91,11 @@ function App() {
   });
 
   const handleAddArticle = (article: Omit<Article, "id" | "dateAdded">) => {
+    if (!canManageArticles) {
+      showPermissionToast();
+      return;
+    }
+
     const newArticle: Article = {
       ...article,
       id: crypto.randomUUID(),
@@ -57,6 +109,11 @@ function App() {
   };
 
   const handleEditArticle = (article: Omit<Article, "id" | "dateAdded"> | Article) => {
+    if (!canManageArticles) {
+      showPermissionToast();
+      return;
+    }
+
     if ('id' in article) {
       setArticles((current) =>
         (current || []).map((a) =>
@@ -67,10 +124,20 @@ function App() {
   };
 
   const handleDeleteArticle = (id: string) => {
+    if (!canManageArticles) {
+      showPermissionToast();
+      return;
+    }
+
     setArticles((current) => (current || []).filter((article) => article.id !== id));
   };
 
   const handleLoadSampleArticles = () => {
+    if (!canManageArticles) {
+      showPermissionToast();
+      return;
+    }
+
     const newArticles: Article[] = sampleArticles.map((article) => ({
       ...article,
       sourceType: "external",
@@ -98,46 +165,22 @@ function App() {
       <Toaster />
       <PWAUpdatePrompt />
       <OfflineIndicator />
-      
-      <div className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-6 md:px-6 md:py-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div>
-              <img
-                src="https://raw.githubusercontent.com/365Evergreen/m365-power-platform/main/public/assets/Evergreen_Logo__100px.png"
-                alt="365 Evergreen logo"
-                className="mb-2 h-8 w-auto sm:h-9 md:h-10"
-              />
-              <h1 className="text-[24px] sm:text-[28px] md:text-[32px] font-semibold tracking-[-0.02em] text-foreground mb-1">
-                M365 Knowledge Base
-              </h1>
-              <p className="text-[14px] sm:text-[15px] text-muted-foreground leading-relaxed">
-                Curated articles for Microsoft 365 and Power Platform
-              </p>
-            </div>
-            <div className="flex gap-3 flex-wrap sm:flex-nowrap items-center">
-              <NotificationSettings />
-              <Button
-                onClick={handleLoadSampleArticles}
-                variant="outline"
-                className="gap-2 flex-1 sm:flex-initial"
-                size="default"
-              >
-                <Database size={16} weight="bold" />
-                <span className="hidden xs:inline">Load Samples</span>
-                <span className="xs:hidden">Samples</span>
-              </Button>
-              <Button
-                onClick={() => setIsAddDialogOpen(true)}
-                className="gap-2 flex-1 sm:flex-initial"
-                size="default"
-              >
-                <Plus size={16} weight="bold" />
-                <span className="hidden xs:inline">Add Article</span>
-                <span className="xs:hidden">Add</span>
-              </Button>
-            </div>
-          </div>
+
+      <Header
+        canManageArticles={canManageArticles}
+        authLoading={authState.loading}
+        isAuthenticated={authState.authenticated}
+        username={authState.username}
+        onAddArticle={() => setIsAddDialogOpen(true)}
+        onLoadSamples={handleLoadSampleArticles}
+      />
+
+      <div className="container mx-auto px-4 py-6 md:px-6 md:py-8">
+          <HeroSection
+            articleCount={articleCount}
+            filteredCount={filteredArticles.length}
+            categoryCount={categoryCount}
+          />
 
           <SearchBar value={searchQuery} onChange={setSearchQuery} />
           <FilterBar
@@ -146,12 +189,15 @@ function App() {
             totalCount={(articles || []).length}
             filteredCount={filteredArticles.length}
           />
-        </div>
       </div>
 
       <div className="container mx-auto px-4 py-6 md:px-6 md:py-8">
         {(articles || []).length === 0 ? (
           <EmptyState 
+            canManageArticles={canManageArticles}
+            authLoading={authState.loading}
+            isAuthenticated={authState.authenticated}
+            username={authState.username}
             onAddClick={() => setIsAddDialogOpen(true)} 
             onLoadSamples={handleLoadSampleArticles}
           />
@@ -181,6 +227,7 @@ function App() {
                 >
                   <ArticleCard
                     article={article}
+                    canManageArticles={canManageArticles}
                     onView={() => setViewingArticle(article)}
                     onEdit={() => setEditingArticle(article)}
                     onDelete={() => handleDeleteArticle(article.id)}
@@ -193,14 +240,14 @@ function App() {
       </div>
 
       <ArticleDialog
-        open={isAddDialogOpen}
+        open={canManageArticles && isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
         onSubmit={handleAddArticle}
         existingUrls={(articles || []).map((a) => a.url).filter(Boolean)}
       />
 
       <ArticleDialog
-        open={!!editingArticle}
+        open={canManageArticles && !!editingArticle}
         onOpenChange={(open: boolean) => !open && setEditingArticle(null)}
         onSubmit={handleEditArticle}
         editingArticle={editingArticle || undefined}
@@ -213,6 +260,7 @@ function App() {
       <ArticleDetailsDialog
         article={viewingArticle}
         open={!!viewingArticle}
+        canManageArticles={canManageArticles}
         onOpenChange={(open: boolean) => !open && setViewingArticle(null)}
         onEdit={() => {
           setEditingArticle(viewingArticle);
