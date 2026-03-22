@@ -1,34 +1,33 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Article, Category } from "@/lib/types";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import {
   Select,
-  SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectContent,
+  SelectItem,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { X } from "@phosphor-icons/react";
 import { toast } from "sonner";
 
 interface ArticleDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (article: Omit<Article, "id" | "dateAdded"> | Article) => void;
-  editingArticle?: Article;
-  existingUrls: string[];
+  onSubmit: (article: Article) => void;
+  editingArticle?: Article | null;
+  existingUrls?: string[];
 }
 
 const categories: Category[] = [
@@ -50,7 +49,7 @@ export function ArticleDialog({
   onOpenChange,
   onSubmit,
   editingArticle,
-  existingUrls,
+  existingUrls = [],
 }: ArticleDialogProps) {
   const [url, setUrl] = useState("");
   const [title, setTitle] = useState("");
@@ -62,184 +61,112 @@ export function ArticleDialog({
 
   useEffect(() => {
     if (editingArticle) {
-      setUrl(editingArticle.url);
-      setTitle(editingArticle.title);
-      setDescription(editingArticle.description);
-      setCategory(editingArticle.category);
-      setTags(editingArticle.tags);
+      setUrl(editingArticle.url || "");
+      setTitle(editingArticle.title || "");
+      setDescription(editingArticle.description || "");
+      setCategory(editingArticle.category || ("Microsoft 365" as Category));
+      setTags(editingArticle.tags || []);
+      setErrors({});
     } else {
-      resetForm();
+      setUrl("");
+      setTitle("");
+      setDescription("");
+      setCategory("Microsoft 365");
+      setTags([]);
+      setTagInput("");
+      setErrors({});
     }
   }, [editingArticle, open]);
 
-  const resetForm = () => {
-    setUrl("");
-    setTitle("");
-    setDescription("");
-    setCategory("Microsoft 365");
-    setTags([]);
-    setTagInput("");
-    setErrors({});
-  };
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!url.trim()) {
-      newErrors.url = "URL is required";
-    } else if (!isValidUrl(url)) {
-      newErrors.url = "Please enter a valid URL";
-    } else if (existingUrls.includes(url.trim()) && !editingArticle) {
-      newErrors.url = "This URL already exists in your knowledge base";
+  const validate = () => {
+    const e: Record<string, string> = {};
+    if (!url.trim()) e.url = "URL is required";
+    if (!title.trim()) e.title = "Title is required";
+    if (!description.trim()) e.description = "Description is required";
+    if (existingUrls.includes(url.trim()) && (!editingArticle || editingArticle.url !== url.trim())) {
+      e.url = "This URL already exists";
     }
-
-    if (!title.trim()) {
-      newErrors.title = "Title is required";
-    }
-
-    if (!description.trim()) {
-      newErrors.description = "Description is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const isValidUrl = (urlString: string) => {
-    try {
-      new URL(urlString);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  const handleAddTag = () => {
-    const trimmedTag = tagInput.trim();
-    if (trimmedTag && !tags.includes(trimmedTag)) {
-      setTags([...tags, trimmedTag]);
-      setTagInput("");
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter((tag) => tag !== tagToRemove));
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
   const handleSubmit = () => {
-    if (!validateForm()) {
-      return;
-    }
-
-    const articleData: Omit<Article, "id" | "dateAdded"> = {
+    if (!validate()) return;
+    const article: Article = {
+      id: editingArticle?.id || Date.now().toString(),
       url: url.trim(),
       title: title.trim(),
       description: description.trim(),
       category,
       tags,
+      dateAdded: editingArticle?.dateAdded || new Date().toISOString(),
     };
-
-    if (editingArticle) {
-      onSubmit({ ...articleData, id: editingArticle.id, dateAdded: editingArticle.dateAdded });
-    } else {
-      onSubmit(articleData);
-    }
-
-    toast.success(
-      editingArticle ? "Article updated successfully" : "Article added successfully"
-    );
+    onSubmit(article);
+    toast.success(editingArticle ? "Article updated successfully" : "Article added successfully");
     onOpenChange(false);
-    resetForm();
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+  const addTag = (raw?: string) => {
+    const value = (raw ?? tagInput).trim();
+    if (!value) return;
+    if (tags.includes(value)) {
+      setTagInput("");
+      return;
+    }
+    setTags((s) => [...s, value]);
+    setTagInput("");
+  };
+
+  const removeTag = (t: string) => setTags((s) => s.filter((x) => x !== t));
+
+  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
-      handleAddTag();
+      addTag();
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[calc(100vw-2rem)] sm:w-full">
+      <DialogContent className="max-w-3xl w-full">
         <DialogHeader>
-          <DialogTitle className="text-[20px] sm:text-[22px] md:text-[24px]">
-            {editingArticle ? "Edit Article" : "Add New Article"}
-          </DialogTitle>
-          <DialogDescription className="text-[13px] sm:text-[14px] md:text-[15px]">
-            {editingArticle
-              ? "Update the article details below"
-              : "Add a new article to your knowledge base"}
-          </DialogDescription>
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div className="flex-1">
+              <Badge variant="secondary" className="text-[11px] sm:text-[12px] md:text-[13px] font-medium mb-3">
+                {category}
+              </Badge>
+              <DialogTitle className="text-[20px] sm:text-[22px] md:text-[24px] leading-tight mb-2">
+                {editingArticle ? "Edit Article" : "Add Article"}
+              </DialogTitle>
+              <DialogDescription className="text-[12px] sm:text-[13px]">Add or edit a shared article</DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="url" className="text-[13px] sm:text-[14px] font-semibold">
-              URL *
-            </Label>
-            <Input
-              id="url"
-              placeholder="https://learn.microsoft.com/..."
-              value={url}
-              onChange={(e) => {
-                setUrl(e.target.value);
-                setErrors({ ...errors, url: "" });
-              }}
-              className={errors.url ? "border-destructive" : ""}
-            />
-            {errors.url && (
-              <p className="text-[12px] sm:text-[13px] text-destructive">{errors.url}</p>
-            )}
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="url">Source URL *</Label>
+            <Input id="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
+            {errors.url && <p className="text-destructive text-sm mt-1">{errors.url}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="title" className="text-[13px] sm:text-[14px] font-semibold">
-              Title *
-            </Label>
-            <Input
-              id="title"
-              placeholder="Article title"
-              value={title}
-              onChange={(e) => {
-                setTitle(e.target.value);
-                setErrors({ ...errors, title: "" });
-              }}
-              className={errors.title ? "border-destructive" : ""}
-            />
-            {errors.title && (
-              <p className="text-[12px] sm:text-[13px] text-destructive">{errors.title}</p>
-            )}
+          <div>
+            <Label htmlFor="title">Title *</Label>
+            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Article title" />
+            {errors.title && <p className="text-destructive text-sm mt-1">{errors.title}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-[13px] sm:text-[14px] font-semibold">
-              Description *
-            </Label>
-            <Textarea
-              id="description"
-              placeholder="Brief description of the article..."
-              value={description}
-              onChange={(e) => {
-                setDescription(e.target.value);
-                setErrors({ ...errors, description: "" });
-              }}
-              className={`min-h-[100px] ${errors.description ? "border-destructive" : ""}`}
-            />
-            {errors.description && (
-              <p className="text-[12px] sm:text-[13px] text-destructive">
-                {errors.description}
-              </p>
-            )}
+          <div>
+            <Label htmlFor="description">Description *</Label>
+            <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Short description" />
+            {errors.description && <p className="text-destructive text-sm mt-1">{errors.description}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="category" className="text-[13px] sm:text-[14px] font-semibold">
-              Category *
-            </Label>
-            <Select value={category} onValueChange={(value) => setCategory(value as Category)}>
-              <SelectTrigger id="category">
-                <SelectValue />
+          <div>
+            <Label htmlFor="category">Category</Label>
+            <Select onValueChange={(val) => setCategory(val as Category)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
                 {categories.map((cat) => (
@@ -251,53 +178,39 @@ export function ArticleDialog({
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="tags" className="text-[13px] sm:text-[14px] font-semibold">
-              Tags
-            </Label>
-            <div className="flex gap-2">
+          <div>
+            <Label htmlFor="tags">Tags</Label>
+            <div className="flex gap-2 items-center">
               <Input
                 id="tags"
-                placeholder="Add a tag..."
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="flex-1"
+                onKeyDown={handleTagKeyDown}
+                placeholder="Add a tag and press Enter"
               />
-              <Button type="button" variant="secondary" onClick={handleAddTag} className="shrink-0">
+              <Button onClick={() => addTag()} variant="outline">
                 Add
               </Button>
             </div>
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                {tags.map((tag) => (
-                  <Badge
-                    key={tag}
-                    variant="secondary"
-                    className="text-[12px] sm:text-[13px] gap-1 pr-1"
-                  >
-                    {tag}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTag(tag)}
-                      className="ml-1 hover:text-destructive"
-                    >
-                      <X size={14} />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            )}
+            <div className="flex flex-wrap gap-2 mt-2">
+              {tags.map((t) => (
+                <Badge key={t} variant="outline" className="cursor-pointer" onClick={() => removeTag(t)}>
+                  {t}
+                </Badge>
+              ))}
+            </div>
           </div>
         </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} className="w-full sm:w-auto">
-            {editingArticle ? "Update Article" : "Add Article"}
-          </Button>
+        <DialogFooter className="mt-6">
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button onClick={() => onOpenChange(false)} variant="outline">
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit} className="ml-auto">
+              {editingArticle ? "Update Article" : "Add Article"}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
