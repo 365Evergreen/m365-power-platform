@@ -48,11 +48,18 @@ A comprehensive knowledge base for curating and discovering M365 and Power Platf
 - **Success criteria**: Changes persist, UI updates immediately, deletion requires confirmation
 
 ### Progressive Web App (PWA) Capabilities
-- **Functionality**: Install app on device, work offline, receive update notifications
-- **Purpose**: Enable offline access to knowledge base and native app-like experience
-- **Trigger**: Browser prompts for installation, automatic service worker registration
-- **Progression**: Install prompt appears → User clicks install → App added to home screen → Service worker caches assets → App works offline → Update notifications appear when new version available
-- **Success criteria**: App installs successfully, works offline, data persists, updates smoothly, offline indicator shows connection status
+- **Functionality**: Install app on device, work offline, receive update notifications, and get push notifications for new articles
+- **Purpose**: Enable offline access to knowledge base, native app-like experience, and real-time updates
+- **Trigger**: Browser prompts for installation, automatic service worker registration, user enables notifications
+- **Progression**: Install prompt appears → User clicks install → App added to home screen → Service worker caches assets → App works offline → Update notifications appear when new version available → User enables push notifications → Receives alerts when new articles are added
+- **Success criteria**: App installs successfully, works offline, data persists, updates smoothly, offline indicator shows connection status, push notifications deliver reliably when enabled
+
+### Push Notifications for New Articles
+- **Functionality**: Real-time browser notifications when new articles are added to the knowledge base
+- **Purpose**: Keep users informed about new content additions without requiring them to actively check the app
+- **Trigger**: User enables notifications via toggle in header, new article is added by any user
+- **Progression**: User clicks notification toggle → Browser requests permission → User grants permission → Toggle switches to enabled state → New article is added → Push notification appears with article title and category → User clicks notification to view app
+- **Success criteria**: Notifications appear within seconds of article addition, display article title and category, respect user's notification preferences, gracefully handle denied permissions
 
 ## Edge Case Handling
 
@@ -65,6 +72,8 @@ A comprehensive knowledge base for curating and discovering M365 and Power Platf
 - **Filter Combinations** - Handle search + category filters together with clear applied filters display
 - **Offline Mode** - Show clear offline indicator when connection is lost, allow access to cached content
 - **Update Available** - Prompt user with friendly notification when new app version is ready
+- **Notification Permission Denied** - Show helpful message with instructions to enable in browser settings
+- **Notifications Disabled** - Show disabled state in settings toggle and don't send notifications
 
 ## Design Direction
 
@@ -148,6 +157,8 @@ Animations should feel responsive and fluid, using Microsoft's Fluent motion pri
   - Tag: Tag/category indicators
   - Article: Article type indicator
   - CheckCircle: Confirmation states
+  - Bell: Notifications enabled
+  - BellSlash: Notifications disabled
 
 - **Spacing**:
   - Container padding: px-6 py-8 (desktop), px-4 py-6 (mobile)

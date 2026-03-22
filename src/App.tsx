@@ -10,14 +10,17 @@ import { FilterBar } from "@/components/FilterBar";
 import { EmptyState } from "@/components/EmptyState";
 import { PWAUpdatePrompt } from "@/components/PWAUpdatePrompt";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
+import { NotificationSettings } from "@/components/NotificationSettings";
 import { Button } from "@/components/ui/button";
 import { Plus, Database } from "@phosphor-icons/react";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { showArticleNotification } from "@/lib/notifications";
 
 function App() {
   const [articles, setArticles] = useKV<Article[]>("articles", []);
+  const [notificationsEnabled] = useKV<boolean>('notifications-enabled', false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -47,6 +50,10 @@ function App() {
       dateAdded: new Date().toISOString(),
     };
     setArticles((current) => [newArticle, ...(current || [])]);
+    
+    if (notificationsEnabled) {
+      showArticleNotification(article.title, article.category);
+    }
   };
 
   const handleEditArticle = (article: Omit<Article, "id" | "dateAdded"> | Article) => {
@@ -101,7 +108,8 @@ function App() {
                 Curated articles for Microsoft 365 and Power Platform
               </p>
             </div>
-            <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+            <div className="flex gap-3 flex-wrap sm:flex-nowrap items-center">
+              <NotificationSettings />
               <Button
                 onClick={handleLoadSampleArticles}
                 variant="outline"
