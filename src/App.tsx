@@ -101,6 +101,11 @@ function App() {
         <div className="container mx-auto px-4 py-6 md:px-6 md:py-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
+              <img
+                src="/assets/Evergreen_Logo__100px.png"
+                alt="365 Evergreen logo"
+                className="mb-2 h-8 w-auto sm:h-9 md:h-10"
+              />
               <h1 className="text-[24px] sm:text-[28px] md:text-[32px] font-semibold tracking-[-0.02em] text-foreground mb-1">
                 M365 Knowledge Base
               </h1>
