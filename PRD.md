@@ -12,12 +12,19 @@ A comprehensive knowledge base for curating and discovering M365 and Power Platf
 
 ## Essential Features
 
-### Article Management
+### GitHub Authentication
+- **Functionality**: Sign in with GitHub account to access the knowledge base
+- **Purpose**: Control access and identify contributors who can manage articles
+- **Trigger**: User clicks "Sign in with GitHub" button
+- **Progression**: Click Sign in → Redirect to GitHub OAuth → Grant permissions → Redirect back to app → Authenticated with username displayed
+- **Success criteria**: Session persists, username displays in header, contributor status determined by repository access
+
+### Article Management (Contributors Only)
 - **Functionality**: Add new articles by entering a URL, title, description, and metadata (category, tags, date added)
 - **Purpose**: Build a curated collection of high-quality M365 and Power Platform resources
-- **Trigger**: User clicks "Add Article" button
+- **Trigger**: Contributor clicks "Add Article" button
 - **Progression**: Click Add Article → Form dialog opens → Enter URL, title, description → Select category and add tags → Submit → Article card appears in grid
-- **Success criteria**: Article persists in storage, displays correctly in grid view, and appears in search results
+- **Success criteria**: Article persists in storage, displays correctly in grid view, and appears in search results, only contributors can access form
 
 ### Search Functionality
 - **Functionality**: Real-time search across article titles, descriptions, and tags
@@ -40,12 +47,12 @@ A comprehensive knowledge base for curating and discovering M365 and Power Platf
 - **Progression**: Click article → Dialog/panel opens → View full description and metadata → Click "Visit Source" to open URL in new tab → Close to return
 - **Success criteria**: Details load instantly, external links open correctly, smooth transitions
 
-### Article Management Actions
+### Article Management Actions (Contributors Only)
 - **Functionality**: Edit or delete existing articles
 - **Purpose**: Maintain accurate, up-to-date knowledge base
-- **Trigger**: User clicks edit/delete button on article card
+- **Trigger**: Contributor clicks edit/delete button on article card
 - **Progression**: Click edit → Pre-filled form opens → Update fields → Save → Article updates in view | Click delete → Confirmation dialog → Confirm → Article removed
-- **Success criteria**: Changes persist, UI updates immediately, deletion requires confirmation
+- **Success criteria**: Changes persist, UI updates immediately, deletion requires confirmation, only contributors see edit/delete buttons
 
 ### Progressive Web App (PWA) Capabilities
 - **Functionality**: Install app on device, work offline, receive update notifications, and get push notifications for new articles
@@ -63,7 +70,10 @@ A comprehensive knowledge base for curating and discovering M365 and Power Platf
 
 ## Edge Case Handling
 
-- **Empty State** - Show welcoming illustration and "Add your first article" prompt when no articles exist
+- **Unauthenticated Users** - Show sign in button prominently in header and empty state, allow viewing articles after sign in
+- **Non-Contributor Users** - Show signed-in status with username but hide add/edit/delete buttons, display friendly message explaining contributor-only access
+- **Authentication Loading** - Show skeleton loaders while checking auth status to prevent UI flicker
+- **Empty State** - Show welcoming illustration and "Add your first article" prompt when no articles exist (for contributors) or "Sign in to view articles" (for guests)
 - **No Search Results** - Display helpful message with suggestion to try different keywords or clear filters
 - **Duplicate URLs** - Detect and warn user if URL already exists in knowledge base before adding
 - **Invalid URLs** - Validate URL format and show inline error message

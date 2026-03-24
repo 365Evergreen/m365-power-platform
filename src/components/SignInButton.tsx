@@ -1,11 +1,13 @@
-import React from 'react';
+import { Button } from "@/components/ui/button";
+import { GithubLogo } from "@phosphor-icons/react";
 
 export function SignInButton() {
   return (
-    <a href="/api/auth/start" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-primary text-primary-foreground">
-      Sign in with GitHub
-    </a>
+    <Button asChild size="default">
+      <a href="/api/auth/start" className="gap-2">
+        <GithubLogo size={16} weight="bold" />
+        Sign in with GitHub
+      </a>
+    </Button>
   );
 }
-
-export default SignInButton;
