@@ -2,11 +2,22 @@ import { Button } from "@/components/ui/button";
 import { Article as ArticleIcon, Plus, Database } from "@phosphor-icons/react";
 
 interface EmptyStateProps {
+  canManageArticles: boolean;
+  authLoading?: boolean;
+  isAuthenticated?: boolean;
+  username?: string;
   onAddClick: () => void;
   onLoadSamples: () => void;
 }
 
-export function EmptyState({ onAddClick, onLoadSamples }: EmptyStateProps) {
+export function EmptyState({
+  canManageArticles,
+  authLoading = false,
+  isAuthenticated = false,
+  username,
+  onAddClick,
+  onLoadSamples,
+}: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center py-12 sm:py-16 md:py-20 px-4">
       <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-secondary flex items-center justify-center mb-4 sm:mb-6">
@@ -17,17 +28,19 @@ export function EmptyState({ onAddClick, onLoadSamples }: EmptyStateProps) {
         Start building your M365 and Power Platform knowledge base by adding
         articles or load sample content to get started
       </p>
-      <div className="flex flex-col xs:flex-row gap-3 w-full xs:w-auto px-4 xs:px-0">
-        <Button onClick={onLoadSamples} size="lg" variant="outline" className="gap-2 w-full xs:w-auto">
-          <Database size={18} weight="bold" />
-          <span className="hidden xs:inline">Load Sample Articles</span>
-          <span className="xs:hidden">Load Samples</span>
-        </Button>
-        <Button onClick={onAddClick} size="lg" className="gap-2 w-full xs:w-auto">
-          <Plus size={18} weight="bold" />
-          Add Article
-        </Button>
-      </div>
+      {canManageArticles ? (
+        <div className="flex flex-col xs:flex-row gap-3 w-full xs:w-auto px-4 xs:px-0">
+          <Button onClick={onLoadSamples} size="lg" variant="outline" className="gap-2 w-full xs:w-auto">
+            <Database size={18} weight="bold" />
+            <span className="hidden xs:inline">Load Sample Articles</span>
+            <span className="xs:hidden">Load Samples</span>
+          </Button>
+          <Button onClick={onAddClick} size="lg" className="gap-2 w-full xs:w-auto">
+            <Plus size={18} weight="bold" />
+            Add Article
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }

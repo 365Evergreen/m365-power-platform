@@ -7,6 +7,7 @@ import { format } from "date-fns";
 
 interface ArticleCardProps {
   article: Article;
+  canManageArticles: boolean;
   onView: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -14,6 +15,7 @@ interface ArticleCardProps {
 
 export function ArticleCard({
   article,
+  canManageArticles,
   onView,
   onEdit,
   onDelete,
@@ -33,30 +35,32 @@ export function ArticleCard({
           <Badge variant="secondary" className="text-[11px] sm:text-[12px] md:text-[13px] font-medium">
             {article.category}
           </Badge>
-          <div className="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 sm:h-8 sm:w-8"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit();
-              }}
-            >
-              <PencilSimple size={16} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 sm:h-8 sm:w-8 text-destructive hover:text-destructive"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete();
-              }}
-            >
-              <Trash size={16} />
-            </Button>
-          </div>
+          {canManageArticles && (
+            <div className="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 sm:h-8 sm:w-8"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit();
+                }}
+              >
+                <PencilSimple size={16} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 sm:h-8 sm:w-8 text-destructive hover:text-destructive"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}
+              >
+                <Trash size={16} />
+              </Button>
+            </div>
+          )}
         </div>
 
         <h3 className="text-[16px] sm:text-[17px] md:text-[18px] font-medium leading-[1.4] mb-2 group-hover:text-accent transition-colors">

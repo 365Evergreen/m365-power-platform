@@ -28,6 +28,7 @@ import { toast } from "sonner";
 interface ArticleDetailsDialogProps {
   article: Article | null;
   open: boolean;
+  canManageArticles: boolean;
   onOpenChange: (open: boolean) => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -36,6 +37,7 @@ interface ArticleDetailsDialogProps {
 export function ArticleDetailsDialog({
   article,
   open,
+  canManageArticles,
   onOpenChange,
   onEdit,
   onDelete,
@@ -68,24 +70,26 @@ export function ArticleDetailsDialog({
                   Added {format(new Date(article.dateAdded), "MMMM d, yyyy")}
                 </DialogDescription>
               </div>
-              <div className="flex gap-2 self-end sm:self-auto">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={onEdit}
-                  className="h-8 w-8 sm:h-9 sm:w-9"
-                >
-                  <PencilSimple size={16} />
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setShowDeleteAlert(true)}
-                  className="h-8 w-8 sm:h-9 sm:w-9 text-destructive hover:text-destructive"
-                >
-                  <Trash size={16} />
-                </Button>
-              </div>
+              {canManageArticles && (
+                <div className="flex gap-2 self-end sm:self-auto">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={onEdit}
+                    className="h-8 w-8 sm:h-9 sm:w-9"
+                  >
+                    <PencilSimple size={16} />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setShowDeleteAlert(true)}
+                    className="h-8 w-8 sm:h-9 sm:w-9 text-destructive hover:text-destructive"
+                  >
+                    <Trash size={16} />
+                  </Button>
+                </div>
+              )}
             </div>
           </DialogHeader>
 
