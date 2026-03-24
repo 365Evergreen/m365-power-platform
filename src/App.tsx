@@ -3,12 +3,13 @@ import { useKV } from "@github/spark/hooks";
 import { Article, Category } from "@/lib/types";
 import { sampleArticles } from "@/lib/seedData";
 import { ArticleCard } from "@/components/ArticleCard";
+import { ArticleListItem } from "@/components/ArticleListItem";
 import { ArticleDialog } from "@/components/ArticleDialog";
 import { ArticleDetailsDialog } from "@/components/ArticleDetailsDialog";
 import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
 import { SearchBar } from "@/components/SearchBar";
-import { FilterBar } from "@/components/FilterBar";
+import { FilterBar, ViewMode } from "@/components/FilterBar";
 import { EmptyState } from "@/components/EmptyState";
 import { PWAUpdatePrompt } from "@/components/PWAUpdatePrompt";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
@@ -32,6 +33,7 @@ function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   const [sortBy, setSortBy] = useKV<SortOption>("article-sort", "date-desc");
+  const [viewMode, setViewMode] = useKV<ViewMode>("view-mode", "grid");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const [viewingArticle, setViewingArticle] = useState<Article | null>(null);
@@ -218,6 +220,8 @@ function App() {
             onCategoriesChange={setSelectedCategories}
             sortBy={sortBy || "date-desc"}
             onSortChange={handleSortChange}
+            viewMode={viewMode || "grid"}
+            onViewModeChange={setViewMode}
             totalCount={(articles || []).length}
             filteredCount={filteredAndSortedArticles.length}
           />
@@ -242,6 +246,29 @@ function App() {
               Try adjusting your search terms or clearing filters
             </p>
           </div>
+        ) : viewMode === "list" ? (
+          <motion.div className="space-y-3 md:space-y-4" layout>
+            <AnimatePresence mode="popLayout">
+              {filteredAndSortedArticles.map((article, index) => (
+                <motion.div
+                  key={article.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.2, delay: index * 0.03 }}
+                  layout
+                >
+                  <ArticleListItem
+                    article={article}
+                    canManageArticles={canManageArticles}
+                    onView={() => setViewingArticle(article)}
+                    onEdit={() => setEditingArticle(article)}
+                    onDelete={() => handleDeleteArticle(article.id)}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         ) : (
           <motion.div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"

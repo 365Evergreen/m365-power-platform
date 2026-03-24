@@ -7,12 +7,17 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { SortControl, SortOption } from "@/components/SortControl";
+import { ViewToggle } from "@/components/ViewToggle";
+
+export type ViewMode = "grid" | "list";
 
 interface FilterBarProps {
   selectedCategories: Category[];
   onCategoriesChange: (categories: Category[]) => void;
   sortBy: SortOption;
   onSortChange: (sort: SortOption) => void;
+  viewMode: ViewMode;
+  onViewModeChange: (mode: ViewMode) => void;
   totalCount: number;
   filteredCount: number;
 }
@@ -36,6 +41,8 @@ export function FilterBar({
   onCategoriesChange,
   sortBy,
   onSortChange,
+  viewMode,
+  onViewModeChange,
   totalCount,
   filteredCount,
 }: FilterBarProps) {
@@ -76,6 +83,7 @@ export function FilterBar({
                 Clear
               </Button>
             )}
+            <ViewToggle value={viewMode} onChange={onViewModeChange} />
             <SortControl value={sortBy} onChange={onSortChange} />
           </div>
         </div>
@@ -148,7 +156,10 @@ export function FilterBar({
             </Button>
           )}
         </div>
-        <SortControl value={sortBy} onChange={onSortChange} />
+        <div className="flex items-center gap-2">
+          <ViewToggle value={viewMode} onChange={onViewModeChange} />
+          <SortControl value={sortBy} onChange={onSortChange} />
+        </div>
       </div>
 
       <CollapsibleContent className="space-y-3">
