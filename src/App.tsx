@@ -41,6 +41,10 @@ function App() {
     isContributor: false,
   });
 
+  const handleSortChange = (sort: SortOption) => {
+    setSortBy(sort);
+  };
+
   useEffect(() => {
     let isMounted = true;
 
@@ -113,7 +117,7 @@ function App() {
 
       return matchesSearch && matchesCategory;
     }),
-    sortBy
+    sortBy || "date-desc"
   );
 
   const handleAddArticle = (article: Omit<Article, "id" | "dateAdded">) => {
@@ -212,8 +216,8 @@ function App() {
           <FilterBar
             selectedCategories={selectedCategories}
             onCategoriesChange={setSelectedCategories}
-            sortBy={sortBy}
-            onSortChange={setSortBy}
+            sortBy={sortBy || "date-desc"}
+            onSortChange={handleSortChange}
             totalCount={(articles || []).length}
             filteredCount={filteredAndSortedArticles.length}
           />

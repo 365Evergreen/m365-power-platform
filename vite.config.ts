@@ -20,6 +20,10 @@ export default defineConfig({
     sparkPlugin() as PluginOption,
     VitePWA({
       registerType: 'autoUpdate',
+      devOptions: {
+        enabled: true,
+        type: 'module'
+      },
       includeAssets: ['icon-192.svg', 'icon-512.svg'],
       manifest: {
         name: 'M365 Knowledge Base',
