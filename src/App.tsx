@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { showArticleNotification } from "@/lib/notifications";
 import { getAuth } from "@/lib/auth";
+import { SortOption } from "@/components/SortControl";
 
 type AuthState = {
   loading: boolean;
@@ -30,6 +31,7 @@ function App() {
   const [notificationsEnabled] = useKV<boolean>('notifications-enabled', false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
+  const [sortBy, setSortBy] = useKV<SortOption>("article-sort", "date-desc");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const [viewingArticle, setViewingArticle] = useState<Article | null>(null);
@@ -74,21 +76,45 @@ function App() {
     toast.error("Your GitHub account is not approved to manage articles");
   };
 
-  const filteredArticles = (articles || []).filter((article) => {
-    const matchesSearch =
-      searchQuery === "" ||
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.tags.some((tag) =>
-        tag.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+  const sortArticles = (articlesToSort: Article[], sortOption: SortOption): Article[] => {
+    const sorted = [...articlesToSort];
+    
+    switch (sortOption) {
+      case "date-desc":
+        return sorted.sort((a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime());
+      case "date-asc":
+        return sorted.sort((a, b) => new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime());
+      case "title-asc":
+        return sorted.sort((a, b) => a.title.localeCompare(b.title));
+      case "title-desc":
+        return sorted.sort((a, b) => b.title.localeCompare(a.title));
+      case "category-asc":
+        return sorted.sort((a, b) => a.category.localeCompare(b.category));
+      case "category-desc":
+        return sorted.sort((a, b) => b.category.localeCompare(a.category));
+      default:
+        return sorted;
+    }
+  };
 
-    const matchesCategory =
-      selectedCategories.length === 0 ||
-      selectedCategories.includes(article.category);
+  const filteredAndSortedArticles = sortArticles(
+    (articles || []).filter((article) => {
+      const matchesSearch =
+        searchQuery === "" ||
+        article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        article.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        article.tags.some((tag) =>
+          tag.toLowerCase().includes(searchQuery.toLowerCase())
+        );
 
-    return matchesSearch && matchesCategory;
-  });
+      const matchesCategory =
+        selectedCategories.length === 0 ||
+        selectedCategories.includes(article.category);
+
+      return matchesSearch && matchesCategory;
+    }),
+    sortBy
+  );
 
   const handleAddArticle = (article: Omit<Article, "id" | "dateAdded">) => {
     if (!canManageArticles) {
@@ -178,7 +204,7 @@ function App() {
       <div className="container mx-auto px-4 py-6 md:px-6 md:py-8">
           <HeroSection
             articleCount={articleCount}
-            filteredCount={filteredArticles.length}
+            filteredCount={filteredAndSortedArticles.length}
             categoryCount={categoryCount}
           />
 
@@ -186,8 +212,10 @@ function App() {
           <FilterBar
             selectedCategories={selectedCategories}
             onCategoriesChange={setSelectedCategories}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
             totalCount={(articles || []).length}
-            filteredCount={filteredArticles.length}
+            filteredCount={filteredAndSortedArticles.length}
           />
       </div>
 
@@ -201,7 +229,7 @@ function App() {
             onAddClick={() => setIsAddDialogOpen(true)} 
             onLoadSamples={handleLoadSampleArticles}
           />
-        ) : filteredArticles.length === 0 ? (
+        ) : filteredAndSortedArticles.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-[15px] text-muted-foreground mb-2">
               No articles match your search or filters
@@ -216,7 +244,7 @@ function App() {
             layout
           >
             <AnimatePresence mode="popLayout">
-              {filteredArticles.map((article, index) => (
+              {filteredAndSortedArticles.map((article, index) => (
                 <motion.div
                   key={article.id}
                   initial={{ opacity: 0, y: 20 }}

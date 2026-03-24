@@ -6,10 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { SortControl, SortOption } from "@/components/SortControl";
 
 interface FilterBarProps {
   selectedCategories: Category[];
   onCategoriesChange: (categories: Category[]) => void;
+  sortBy: SortOption;
+  onSortChange: (sort: SortOption) => void;
   totalCount: number;
   filteredCount: number;
 }
@@ -31,6 +34,8 @@ const categories: Category[] = [
 export function FilterBar({
   selectedCategories,
   onCategoriesChange,
+  sortBy,
+  onSortChange,
   totalCount,
   filteredCount,
 }: FilterBarProps) {
@@ -59,17 +64,20 @@ export function FilterBar({
               Filter by Category
             </span>
           </div>
-          {selectedCategories.length > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearFilters}
-              className="h-7 text-[13px] gap-1"
-            >
-              <X size={14} />
-              Clear
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {selectedCategories.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="h-7 text-[13px] gap-1"
+              >
+                <X size={14} />
+                Clear
+              </Button>
+            )}
+            <SortControl value={sortBy} onChange={onSortChange} />
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -104,40 +112,43 @@ export function FilterBar({
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-3">
-      <div className="flex items-center justify-between">
-        <CollapsibleTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 px-2 gap-2 hover:bg-secondary"
-          >
-            <Funnel size={16} className="text-muted-foreground" />
-            <span className="text-[13px] font-medium text-foreground">
-              Filters
-              {selectedCategories.length > 0 && (
-                <span className="ml-1 text-primary">({selectedCategories.length})</span>
-              )}
-            </span>
-            <CaretDown
-              size={14}
-              className={cn(
-                "text-muted-foreground transition-transform duration-200",
-                isOpen && "rotate-180"
-              )}
-            />
-          </Button>
-        </CollapsibleTrigger>
-        {selectedCategories.length > 0 && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearFilters}
-            className="h-7 text-[12px] gap-1"
-          >
-            <X size={14} />
-            Clear
-          </Button>
-        )}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-2 gap-2 hover:bg-secondary"
+            >
+              <Funnel size={16} className="text-muted-foreground" />
+              <span className="text-[13px] font-medium text-foreground">
+                Filters
+                {selectedCategories.length > 0 && (
+                  <span className="ml-1 text-primary">({selectedCategories.length})</span>
+                )}
+              </span>
+              <CaretDown
+                size={14}
+                className={cn(
+                  "text-muted-foreground transition-transform duration-200",
+                  isOpen && "rotate-180"
+                )}
+              />
+            </Button>
+          </CollapsibleTrigger>
+          {selectedCategories.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFilters}
+              className="h-7 text-[12px] gap-1"
+            >
+              <X size={14} />
+              Clear
+            </Button>
+          )}
+        </div>
+        <SortControl value={sortBy} onChange={onSortChange} />
       </div>
 
       <CollapsibleContent className="space-y-3">
